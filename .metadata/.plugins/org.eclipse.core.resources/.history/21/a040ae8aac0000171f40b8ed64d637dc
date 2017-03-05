@@ -1,0 +1,14 @@
+package Solutions;
+
+public class StackFromArray<E> {
+	private E[] arr = null;
+	private int CAP;
+	private int size = 0;
+	private int top = -1;
+	
+	public StackFromArray(int cap){
+		this.CAP = cap;
+		this.arr = ()
+		
+	}
+}

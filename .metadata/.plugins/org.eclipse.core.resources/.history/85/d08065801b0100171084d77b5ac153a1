@@ -1,0 +1,98 @@
+package Solutions;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class LRUCache {
+
+	int cap;
+	HashMap<Integer, DoubleNode> map = new HashMap<Integer, DoubleNode>();
+	DoubleNode head = null;
+	DoubleNode end = null;
+	
+	public LRUCache(int cap){
+		this.cap = cap;
+	}
+	
+	public DoubleNode get(int addr){
+		if(map.containsKey(addr)){
+			DoubleNode result = map.get(addr);
+			remove(result);
+			setHead(result);
+			return result;
+		}
+		return null;
+	}
+	
+	public void remove(DoubleNode n){
+		if(n.prev != null){
+			n.prev.next = n.next;
+		}
+		else{
+			head = n.next;
+		}
+		
+		if(n.next != null){
+			n.next.prev = n.prev;
+		}
+		else{
+			end = n.prev;
+		}
+	}
+	
+	public void setHead(DoubleNode n){
+		n.next = head;
+		n.prev = null;
+		
+		if(head != null){
+			head.prev = n;
+		}
+		
+		head = n;
+		
+		if(end == null)
+			end = head;
+	}
+	
+	public void set(int addr, int value){
+		if(map.containsKey(addr)){
+			DoubleNode old = map.get(addr);
+			old.value = value;
+			remove(old);
+			setHead(old);
+		}
+		else{
+			DoubleNode newNode = new DoubleNode(value, addr);
+			if(map.size() >= cap){
+				map.remove(end.addr);
+				remove(end);
+				setHead(newNode);
+			}
+			else{
+				setHead(newNode);
+			}
+			
+			map.put(addr, newNode);
+		}
+	}
+	
+	public static void main(String[] args){
+		LRUCache cache = new LRUCache(5);
+		cache.set(1, 1);
+		cache.set(2, 2);
+		cache.set(3, 3);
+		cache.set(4, 4);
+		cache.set(5, 5);
+		
+		for(Map.Entry<Integer, DoubleNode> entry : cache.map.entrySet()){
+			System.out.println("Addr: " + entry.getKey() + ", Value: " + entry.getValue());
+		}
+		cache.set(1, 2);
+		System.out.println();
+		System.out.println("After:");
+		for(Map.Entry<Integer, DoubleNode> entry : cache.map.entrySet()){
+			System.out.println("Addr: " + entry.getKey() + ", Value: " + entry.getValue());
+		}
+	}
+	
+}

@@ -1,0 +1,36 @@
+package Solutions;
+
+import java.util.HashMap;
+
+public class LRUCache {
+
+	int cap;
+	HashMap<Integer, DoubleNode> map = new HashMap<Integer, DoubleNode>();
+	DoubleNode head = null;
+	DoubleNode end = null;
+	
+	public LRUCache(int cap){
+		this.cap = cap;
+	}
+	
+	public void sethead(DoubleNode n){
+		n.next = head;
+		n.prev = null;
+		
+		if(head != null){
+			head.prev = n;
+		}
+		
+		
+		head = n;
+		
+		if(end == null)
+			end = head;
+	}
+	
+	public void set(int value, int key){
+		if(map.containsKey(value)){
+			
+		}
+	}
+}

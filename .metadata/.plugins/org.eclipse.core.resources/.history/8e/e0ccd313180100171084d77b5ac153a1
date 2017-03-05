@@ -1,0 +1,12 @@
+package Solutions;
+
+public class DoubleNode {
+	int value;
+	Node next;
+	Node prev;
+	
+	public DoubleNode(int x){
+		value = x;
+	}
+
+}
