@@ -1,0 +1,30 @@
+package Solutions;
+
+import java.util.Arrays;
+
+public class ExampleSub1 {
+	public static void main(String args[]){
+
+		Example1[] Example1s = new Example1[4];
+
+		Example1 pineappale = new Example1("Pineapple", "Pineapple description",70);
+		Example1 apple = new Example1("Apple", "Apple description",100);
+		Example1 orange = new Example1("Orange", "Orange description",80);
+		Example1 banana = new Example1("Banana", "Banana description",90);
+
+		Example1s[0]=pineappale;
+		Example1s[1]=apple;
+		Example1s[2]=orange;
+		Example1s[3]=banana;
+
+		Arrays.sort(Example1s);
+
+		int i=0;
+		for(Example1 temp: Example1s){
+		   System.out.println("Example1s " + ++i + " : " + temp.getFruitName() +
+			", Quantity : " + temp.getQuantity());
+		}
+
+	}
+
+}

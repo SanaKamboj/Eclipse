@@ -1,0 +1,259 @@
+package Solutions;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.*;
+import java.util.*;
+
+public class Main {
+	
+	public static long[] countArray = new long[52];
+	public static long[] refinedArray = new long[26];
+	public static long[] countEncrypt = new long[26];
+	public static long[] sortEncrypt = new long[26];
+	public static long[] sortArray = new long[26];
+	public static char[] sortLetters = new char[26];
+	public static char[] sortencLetters = new char[26];
+	public static String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	public static String encAlphabet = "abcdefghijklmnopqrstuvwxyz";
+	static File encfile = new File("Encrypted.txt");
+	static File decfile = new File("Decrypted.txt");
+	static int totalcorrect = 0;
+	static int totalincorrect = 0;
+	
+	
+	public static void main(String[] args) throws IOException {
+		
+		/* The path of the files "/Users/Sana/Desktop/corpus" has been added to the argument section 
+		in Run Configuration.
+		Creating a "list" which contains all the files in the corpus */
+		
+		File allFiles = processIn("/Users/Sana/Desktop/Fall semester-2015/CIS-573/corpus");
+		File[] list = allFiles.listFiles();
+		Arrays.sort(list); 
+		
+		//For each file to be encrypted, calling various methods in sequence
+		
+		for(int t = 0; t < list.length; t++){	
+			Main.encrypt(list[t]);
+			Main.scanEncFile();				       
+			Main.freqAnal(list, t+1, list.length);	       
+	       	Main.sort();
+	       	Main.decrypt();
+	       	Main.accuracy(list[t]); 
+	       	Main.cleanUp();
+		}
+		System.out.println("Total: " + totalcorrect + " correct, " + totalincorrect + " incorrect");
+		System.out.println("Accuracy: "+ (double)(100*totalcorrect)/(totalcorrect+totalincorrect) + "%");
+       
+    }
+	
+	//Method for encrypting an incoming file
+	
+	public static File encrypt(File fileName) throws IOException{			    
+	    FileReader fileReader = new FileReader(fileName);
+        BufferedReader bufferedReader =  new BufferedReader(fileReader);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(encfile));
+        int offset =12;
+		String line = null, enc = null, temp =null;
+		while( (line = bufferedReader.readLine() ) != null){
+			for(char i : line.toCharArray()) {
+		    	enc = "";
+		    	if ( Character.isLetter(i) ) {
+		    		if ( Character.isUpperCase(i) ) {
+		    			temp="";
+	                    temp = temp + ( (char)('A' + (i - 'A' + offset) % 26 ) );
+	                    enc = enc + temp.toLowerCase();	                                     
+	                } 
+		    		else {
+	                	enc = enc + ( (char)('a' + (i - 'a' + offset) % 26 ) );
+	                }
+	            }
+	            else {
+	                enc = enc + i;
+	            }
+	            writer.write(enc);	                        
+			}
+			writer.newLine();
+		}
+		bufferedReader.close();
+		writer.flush();
+	    writer.close();	    
+		return encfile;         
+	}
+	
+	//Method for scanning the encrypted file for number of occurrences of letters
+	
+	public static void scanEncFile() throws IOException {
+		Scanner scan = new Scanner(encfile, "utf-8");
+	    while ( scan.hasNext() ){
+	    	char[] ch =  scan.nextLine().toLowerCase().toCharArray();
+	    	for (Character c : ch) {
+	    		for (int e = 0; e < encAlphabet.length(); e++) {
+	        		if (encAlphabet.charAt(e) == c) {
+	        			countEncrypt[e]++;
+	         			sortEncrypt[e]++; 
+	        		}
+	    		}        		
+	    	} 
+	    }       
+	    scan.close();	
+	}
+	
+	//Method for developing the frequency analysis model
+	
+	public static void freqAnal(File[] file, int e, int size) throws IOException {
+		for(int i = 0; i < size; i++){
+			if( (i+1) != e){
+				 String l = null;		 
+				 int b=0;
+				 FileReader fr = new FileReader(file[i]);
+		         BufferedReader bf =  new BufferedReader(fr);
+		         while((l = bf.readLine()) != null) { 	
+		         	char[] c = l.toCharArray();         	
+		         	for (char x : c) {
+		         		for (b = 0; b < alphabet.length(); b++) {
+		         			if (alphabet.charAt(b) == x) {
+				         				countArray[b]++;             				
+		         			}
+		         		}
+		         	}       
+		         }        
+		         bf.close(); 
+			}
+		}       
+     }	
+	
+	//Method for sorting the character arrays of frequency model and encrypted file in increasing order of occurrences
+	
+	public static void sort() throws IOException {
+		for (int r=0; r<26; r++){
+	        refinedArray[r] = countArray[r] + countArray[(r+26)];  
+	        sortArray[r] = countArray[r] + countArray[(r+26)]; 
+        }
+	                   
+	    java.util.Arrays.sort(sortArray);
+	    for (int k=0; k<26; k++) {
+	    	for (int i = 0; i < refinedArray.length; i++) {
+	     		if (refinedArray[i] == sortArray[k]) 
+	     			sortLetters[k] = encAlphabet.charAt(i);   
+	     	 }
+	     }
+	        
+	     java.util.Arrays.sort(sortEncrypt);
+	     for (int n=0; n<26; n++) {
+	    	 for (int q = 0; q < countEncrypt.length; q++) {
+	    		 if (countEncrypt[q] == sortEncrypt[n]) 
+	    			 sortencLetters[n] = encAlphabet.charAt(q);   
+	    	 }
+	     }		
+	}
+	
+	//Method for decrypting the encrypted file using the frequency analysis model produced
+	
+	public static void decrypt()throws IOException{		
+			int i;
+			Scanner scan = new Scanner( encfile, "utf-8");
+			BufferedWriter writer = new BufferedWriter( new FileWriter(decfile));
+			while (scan.hasNext()){
+	        	char[] c =  scan.nextLine().toCharArray();
+	        	for (Character x : c) {
+	        		if( Character.isLetter(x))	{        		
+	        			for(i=0; i<26; i++) {
+	        				if (sortencLetters[i] == x) {
+	        					writer.write(sortLetters[i]);
+	        				}
+	        			}
+	        		}
+	        		else{
+	        			writer.write(x);
+	        		}
+	            }
+	        	writer.newLine();
+	        }
+			scan.close();
+			writer.flush();
+			writer.close(); 
+   }
+	
+	//Method for calculating the accuracy of decryption algorithm used
+	
+	public static void accuracy(File in)throws IOException{
+			Scanner scan = new Scanner( decfile, "utf-8");
+			Scanner scanin = new Scanner( in, "utf-8");
+			int right= 0, wrong = 0;
+			while (scan.hasNext() && scanin.hasNext()) {
+	        	char[] decLetters =  scan.nextLine().toCharArray();
+	        	char[] inLetters =  scanin.nextLine().toCharArray();
+	        		
+	        	for (int i = 0 ;i < decLetters.length ; i++){
+	        		if( decLetters[i] == inLetters[i] ){
+	        			right++;
+	        		}
+	        		else{
+	        			wrong++;
+	        		}
+	        	}
+			}
+			System.out.println( in.getName() + ": " + right + " correct, " + wrong + " wrong");
+			totalcorrect = totalcorrect + right;
+			totalincorrect = totalincorrect + wrong;
+			scan.close();
+			scanin.close();
+			
+		}
+ 	
+	// Method for processing the input and error handling 
+	
+	public static File processIn(String s){
+		
+		if( s.length() <= 0){
+			System.out.println("The number of runtime arguments is incorrect.");
+			System.exit(0);
+		}
+		
+		File direc = new File(s);
+		
+		if( !direc.exists() ){
+			 System.out.println("Directory does not exist!");
+			 System.exit(0);
+		}
+		
+		if( !direc.isDirectory() ){
+			 System.out.println("Error path is not a directory");
+			 System.exit(0);
+		}
+		
+		if( !direc.canRead() ){
+			System.out.println("Directory cannot be read.");
+			System.exit(0);
+		}
+		
+		if( direc.list().length <= 0){
+			System.out.println("Directory is empty!");
+			System.exit(0);
+		}	
+		return direc;
+	} 
+
+	//Method to clean up arrays and files after the process is completed for the first file.
+	
+	public static void cleanUp()throws IOException{	
+		countArray = new long[52]; 
+		refinedArray = new long[26];
+		countEncrypt = new long[26];
+		sortEncrypt = new long[26];
+		sortArray = new long[26];
+		sortLetters = new char[26];
+		sortencLetters = new char[26];
+		PrintWriter clear = new PrintWriter(encfile);
+		clear.print("");
+		clear.close();
+		PrintWriter writer = new PrintWriter(decfile);
+		writer.print("");
+		writer.close();
+	}
+
+}
+

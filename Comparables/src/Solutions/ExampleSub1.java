@@ -1,0 +1,56 @@
+package Solutions;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class ExampleSub1{
+	public static void main(String args[]){
+
+		Example1[] fruits = new Example1[5];
+
+		Example1 pineappale = new Example1("Pineapple", "Pineapple description",70);
+		Example1 apple = new Example1("Apple", "Apple description",100);
+		Example1 orange = new Example1("Orange", "Orange description",80);
+		Example1 banana = new Example1("Banana", "Banana description",90);
+		Example1 hello = new Example1("Banana", "Banana description",50);
+
+		fruits[0]=pineappale;
+		fruits[1]=apple;
+		fruits[2]=orange;
+		fruits[3]=banana;
+		fruits[4] = hello;
+
+//		Arrays.sort(fruits,  new Comparator<Example1>(){
+//			@Override
+//			public int compare(Example1 fruit1, Example1 fruit2){
+//				return fruit1.getQuantity() - fruit2.getQuantity();
+//			}
+//		});
+//		
+//		//Arrays.sort(fruits);
+//
+//		int i=0;
+//		for(Example1 temp: fruits){
+//		   System.out.println("fruits " + ++i + " : " + temp.getFruitName() +
+//			", Quantity : " + temp.getQuantity());
+//		}
+		
+//		Arrays.sort(fruits, new Comparator<Example1>(){
+//			@Override
+//			public int compare(Example1 fruit1, Example1 fruit2){
+//				return fruit2.getFruitName().compareTo(fruit1.getFruitName());
+//			}
+//		});
+		
+		Arrays.sort(fruits, new ComparatorEg(2));
+		
+		System.out.println();
+		int i = 0;
+		for(Example1 temp: fruits){
+			   System.out.println("fruits " + ++i + " : " + temp.getFruitName() +
+				", Quantity : " + temp.getQuantity());
+			}
+
+	}
+
+}

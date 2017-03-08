@@ -1,0 +1,16 @@
+package Solutions;
+
+import java.util.Comparator;
+
+public class ComparatorEg implements Comparator<Example1>{
+	
+	
+	@Override
+	public int compare(Example1 fruit1, Example1 fruit2){
+		String name1 = fruit1.getFruitName().toUpperCase();
+		String name2 = fruit1.getFruitName().toUpperCase();
+		
+		return name1.compareTo(name2);
+	}
+
+}

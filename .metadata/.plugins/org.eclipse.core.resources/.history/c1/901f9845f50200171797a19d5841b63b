@@ -1,0 +1,30 @@
+package Solutions;
+
+import java.util.Comparator;
+
+public class ComparatorEg implements Comparator<Example1>{
+	
+	int type;
+	
+	public ComparatorEg(int type){
+		this.type = type;
+	}
+	
+	@Override
+	public int compare(Example1 fruit1, Example1 fruit2){
+		switch(type){
+		case 1:
+			String name1 = fruit1.getFruitName();
+			String name2 = fruit2.getFruitName();
+			
+			return name1.compareTo(name2);
+			
+		default:
+			int q1 = fruit1.getQuantity();
+			int q2 = fruit2.getQuantity();
+			
+			return Integer.compare(q1, q2);
+		}
+	}
+
+}

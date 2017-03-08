@@ -1,0 +1,235 @@
+package Solutions;
+
+import java.util.*;
+import java.io.*;
+
+public class Main {
+	
+	File encfile = new File("encryped.txt");
+	File decfile = new File("decrypted.txt");
+	TreeMap<Character,Integer> emap = new TreeMap<Character,Integer>();
+	TreeMap<Character,Integer> map = new TreeMap<Character,Integer>();
+	HashMap<Character,Character> charmap = new HashMap<Character,Character>();
+	static int totalcorrect = 0;
+	static int totalincorrect = 0;
+	
+	public File encrypt(File filename) throws IOException{
+		FileReader fr = new FileReader(filename);
+		BufferedReader br = new BufferedReader(fr);
+		BufferedWriter bw = new BufferedWriter(new FileWriter(encfile));
+		
+		String line = null;
+		int offset = 12;
+		StringBuilder sb = new StringBuilder();
+		while((line = br.readLine()) != null){
+			for(char i : line.toCharArray()){
+				if(Character.isLetter(i)){
+					if(Character.isUpperCase(i)){
+						sb.append('A' + (i - 'A' + offset) % 26);
+					}
+					else{
+						sb.append('a' + (i - 'a' + offset) % 26);
+					}
+				}
+				else{
+					sb.append(i);
+				}
+				bw.write(sb.toString().toLowerCase());
+			}
+			bw.newLine();
+		}
+		br.close();
+		bw.flush();
+		bw.close();		
+		return encfile;
+	}
+	
+	//Method for scanning the encrypted file for number of occurrences of letters
+	
+	public void scanEncFile() throws IOException{
+		Scanner scan = new Scanner(encfile, "utf-8");
+		int count;
+		while(scan.hasNext()){
+			char[] ch = scan.nextLine().toCharArray();
+			for(Character c : ch){
+				if(emap.containsKey(c)){
+					count = emap.get(c);
+					count++;
+					emap.put(c, count);
+				}
+				else{
+					emap.put(c, 1);
+				}
+			}
+		}
+		scan.close();
+	}
+	
+	//Method for developing the frequency analysis model
+	
+	public void freqAnal(File[] file, int t){
+		String line;
+		FileReader fr = null;
+		BufferedReader br = null;
+		int count;
+		try{
+			for(int i = 0; i < file.length; i++){
+				if(i != t){
+					fr = new FileReader(file[i]);
+					br = new BufferedReader(fr);
+					while((line = br.readLine()) != null){
+						for(char c : line.toLowerCase().toCharArray()){
+							if(map.containsKey(c)){
+								count = map.get(c);
+								count++;
+								map.put(c, count);
+							}
+							else{
+								map.put(c, 1);
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (IOException e){
+			e.printStackTrace();
+		}
+		finally{
+			try{
+				if(br != null)
+					br.close();
+				if(fr != null)
+					fr.close();
+			}
+			catch(IOException ex){
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	public TreeMap<Character,Integer> sortHashMap(TreeMap<Character,Integer> map){
+		Comparator<Character> comp = new ValueComparator<Character, Integer>(map);
+		TreeMap<Character,Integer> sortedMap = new TreeMap<Character,Integer>(comp);
+		sortedMap.putAll(map);
+		return sortedMap;
+	}
+	
+	public void sort() throws  IOException {
+		emap = sortHashMap(emap);
+		map = sortHashMap(map);
+		Set set1 = emap.entrySet();
+		Iterator itr1 = set1.iterator();
+		Set set2 = map.entrySet();
+		Iterator itr2 = set2.iterator();
+		
+		while(itr1.hasNext() && itr2.hasNext()){
+			Map.Entry a = (Map.Entry) itr1.next();
+			Map.Entry b = (Map.Entry) itr2.next();
+			charmap.put((char)a.getKey(), (char)b.getKey());
+		}
+	}
+	
+	public void decrypt() throws IOException {
+		Scanner scan = new Scanner(encfile, "utf-8");
+		BufferedWriter bw = new BufferedWriter(new FileWriter(decfile));
+		while(scan.hasNext()){
+			char[] ch = scan.nextLine().toCharArray();
+			for(Character c : ch){
+				if(Character.isLetter(c)){
+					bw.write(charmap.get(c));
+				}
+				else{
+					bw.write(c);
+				}
+			}
+			bw.newLine();
+		}
+		scan.close();
+		bw.flush();
+		bw.close();
+	}
+	
+	public void accuracy(File org) throws IOException{
+		Scanner scandec = new Scanner( decfile, "utf-8");
+		Scanner scanorg = new Scanner( org, "utf-8");
+		int right= 0, wrong = 0;
+		while (scandec.hasNext() && scanorg.hasNext()) {
+        	char[] decLetters =  scandec.nextLine().toCharArray();
+        	char[] inLetters =  scanorg.nextLine().toCharArray();
+        		
+        	for (int i = 0 ;i < decLetters.length ; i++){
+        		if( decLetters[i] == inLetters[i] ){
+        			right++;
+        		}
+        		else{
+        			wrong++;
+        		}
+        	}
+		}
+		System.out.println( org.getName() + ": " + right + " correct, " + wrong + " wrong");
+		totalcorrect = totalcorrect + right;
+		totalincorrect = totalincorrect + wrong;
+		scandec.close();
+		scanorg.close();
+		
+	}
+	
+	public static File processIn(String s){
+		
+		if( s.length() <= 0){
+			System.out.println("The number of runtime arguments is incorrect.");
+			System.exit(0);
+		}
+		
+		File direc = new File(s);
+		
+		if( !direc.exists() ){
+			 System.out.println("Directory does not exist!");
+			 System.exit(0);
+		}
+		
+		if( !direc.isDirectory() ){
+			 System.out.println("Error path is not a directory");
+			 System.exit(0);
+		}
+		
+		if( !direc.canRead() ){
+			System.out.println("Directory cannot be read.");
+			System.exit(0);
+		}
+		
+		if( direc.list().length <= 0){
+			System.out.println("Directory is empty!");
+			System.exit(0);
+		}	
+		return direc;
+	} 
+
+	//Method to clean up arrays and files after the process is completed for the first file.
+	
+	
+	public static void main(String[]args) throws IOException{
+		
+		Main main = new Main();
+		File allFiles = processIn(args[0]);
+		File[] list = allFiles.listFiles();
+		Arrays.sort(list); 
+		
+		//For each file to be encrypted, calling various methods in sequence
+		
+		for(int t = 0; t < list.length; t++){	
+			main.encrypt(list[t]);
+			main.scanEncFile();				       
+			main.freqAnal(list, t);	       
+	       	main.sort();
+	       	main.decrypt();
+	       	main.accuracy(list[t]); 
+		}
+		System.out.println("Total: " + totalcorrect + " correct, " + totalincorrect + " incorrect");
+		System.out.println("Accuracy: "+ (double)(100*totalcorrect)/(totalcorrect+totalincorrect) + "%");
+		
+		
+	}
+
+}

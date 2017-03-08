@@ -1,0 +1,21 @@
+package Solutions;
+
+import java.util.Comparator;
+
+public class ComparatorEg implements Comparator<Example1>{
+	
+	
+	@Override
+	public int compare(Example1 fruit1, Example1 fruit2){
+//		String name1 = fruit1.getFruitName();
+//		String name2 = fruit2.getFruitName();
+//		
+//		return name1.compareTo(name2);
+		
+		int name1 = fruit1.getQuantity();
+		int name2 = fruit2.getQuantity();
+		
+		return Integer.compare(name1, name2);
+	}
+
+}

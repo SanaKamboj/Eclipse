@@ -1,0 +1,15 @@
+package Solutions;
+import java.util.*;
+
+public class ValueComparator<K,V extends Comparable<V>> implements Comparator<K> {
+	HashMap<K,V> map = new HashMap<K,V>();
+	
+	public ValueComparator(HashMap<K,V> map){
+		this.map = map;
+	}
+	
+	@Override
+	public int compare(K keyA, K keyB){
+		return -map.get(keyA).compareTo(map.get(keyB));
+	}
+}

@@ -1,0 +1,45 @@
+package Solutions;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class ExampleSub1{
+	public static void main(String args[]){
+
+		Example1[] fruits = new Example1[4];
+
+		Example1 pineappale = new Example1("Pineapple", "Pineapple description",70);
+		Example1 apple = new Example1("Apple", "Apple description",100);
+		Example1 orange = new Example1("Orange", "Orange description",80);
+		Example1 banana = new Example1("Banana", "Banana description",90);
+
+		fruits[0]=pineappale;
+		fruits[1]=apple;
+		fruits[2]=orange;
+		fruits[3]=banana;
+
+		Arrays.sort(fruits);
+
+		int i=0;
+		for(Example1 temp: fruits){
+		   System.out.println("fruits " + ++i + " : " + temp.getFruitName() +
+			", Quantity : " + temp.getQuantity());
+		}
+		
+		Arrays.sort(fruits, new Comparator<Example1>(){
+			@Override
+			public int compare(Example1 fruit1, Example1 fruit2){
+				return fruit1.getFruitName().compareTo(fruit2.getFruitName());
+			}
+		});
+		
+		System.out.println();
+		i = 0;
+		for(Example1 temp: fruits){
+			   System.out.println("fruits " + ++i + " : " + temp.getFruitName() +
+				", Quantity : " + temp.getQuantity());
+			}
+
+	}
+
+}
